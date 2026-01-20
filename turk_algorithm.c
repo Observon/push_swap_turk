@@ -15,18 +15,25 @@
 static void push_to_b(t_stack **stack_a, t_stack **stack_b, int size)
 {
     int pushed = 0;
-    int i = 0;
+    int chunk_size;
+    int mid_point;
     
-    while (size > 3 && i < size && pushed < size - 3)
+    if (size <= 100)
+        chunk_size = size / 5;
+    else
+        chunk_size = size / 11;
+    mid_point = size / 2;
+    while (size > 3 && pushed < size - 3)
     {
-        if ((*stack_a)->index <= size - 3)
+        if ((*stack_a)->index <= pushed + chunk_size)
         {
             pb(stack_a, stack_b);
+            if ((*stack_b)->index < mid_point && stack_size(*stack_b) > 1)
+                rb(stack_b, 1);
             pushed++;
         }
         else
             ra(stack_a, 1);
-        i++;
     }
 }
 

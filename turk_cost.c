@@ -30,19 +30,32 @@ void calculate_costs(t_stack **stack_a, t_stack **stack_b)
     }
 }
 
+static int calculate_total_cost(int cost_a, int cost_b)
+{
+    int abs_a = cost_a < 0 ? -cost_a : cost_a;
+    int abs_b = cost_b < 0 ? -cost_b : cost_b;
+    
+    if ((cost_a > 0 && cost_b > 0) || (cost_a < 0 && cost_b < 0))
+    {
+        if (abs_a > abs_b)
+            return abs_a;
+        return abs_b;
+    }
+    return abs_a + abs_b;
+}
+
 static void find_cheapest(t_stack *stack_b, int *cost_a, int *cost_b)
 {
     t_stack *tmp = stack_b;
     int cheapest = INT_MAX;
-    int abs_a, abs_b;
+    int total_cost;
     
     while (tmp)
     {
-        abs_a = tmp->cost_a < 0 ? -tmp->cost_a : tmp->cost_a;
-        abs_b = tmp->cost_b < 0 ? -tmp->cost_b : tmp->cost_b;
-        if (abs_a + abs_b < cheapest)
+        total_cost = calculate_total_cost(tmp->cost_a, tmp->cost_b);
+        if (total_cost < cheapest)
         {
-            cheapest = abs_a + abs_b;
+            cheapest = total_cost;
             *cost_a = tmp->cost_a;
             *cost_b = tmp->cost_b;
         }
