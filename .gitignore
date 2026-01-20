@@ -1,0 +1,39 @@
+# Compiled objects
+*.o
+*.a
+*.so
+
+# Executables
+push_swap
+checker_linux
+pro_checker
+push_swap_test_linux.sh
+# Auxiliary test scripts (local only)
+run_ops.py
+run_tester.sh
+test_auto.sh
+test_with_checker.sh
+run_official_tester.sh
+test_push_swap.sh
+
+# Documentation files (local development)
+TESTING_GUIDE.md
+ENCODING_FIX_EXPLANATION.md
+intrucoes.md
+DOCUMENTACAO_TECNICA.md
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Test outputs
+traces.txt
+0/
