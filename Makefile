@@ -1,4 +1,5 @@
 NAME = push_swap
+CHECKER = checker
 
 SRC = main.c \
 	  utils.c \
@@ -13,7 +14,16 @@ SRC = main.c \
 	  turk_target.c \
 	  turk_shift.c
 
+SRC_BONUS = checker.c \
+			utils.c \
+			validation.c \
+			parse_args.c \
+			index.c \
+			operations.c \
+			reverse_operations.c
+
 OBJ := $(SRC:.c=.o)
+OBJ_BONUS := $(SRC_BONUS:.c=.o)
 
 CC = gcc
 CCFLAGS = -Wall -Wextra -Werror
@@ -30,11 +40,18 @@ $(NAME): $(OBJ)
 %.o: %.c
 	$(CC) $(CCFLAGS) -I. -Ilibft -c $< -o $@
 
+bonus: $(CHECKER)
+
+$(CHECKER): $(OBJ_BONUS)
+	@make -C libft
+	$(CC) $(OBJ_BONUS) -Llibft -lft -o $(CHECKER)
+
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(OBJ_BONUS)
+	make clean -C libft/
 
 fclean: clean
-	rm -f $(NAME) $(NAME).exe
+	rm -f $(NAME) $(NAME).exe $(CHECKER) $(CHECKER).exe
 	make fclean -C libft/
 
 re: fclean all
@@ -42,4 +59,4 @@ re: fclean all
 debug: $(OBJ)
 	$(CC) $(CCFLAGS) -fsanitize=address $(OBJ) -Llibft -lft -o $(NAME)
 
-.PHONY: libft clean fclean re debug all
+.PHONY: libft clean fclean re debug all bonus
