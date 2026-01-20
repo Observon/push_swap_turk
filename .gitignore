@@ -15,6 +15,7 @@ test_auto.sh
 test_with_checker.sh
 run_official_tester.sh
 test_push_swap.sh
+test_optimization.sh
 
 # Documentation files (local development)
 TESTING_GUIDE.md
