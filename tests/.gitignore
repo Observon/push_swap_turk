@@ -1,0 +1,7 @@
+# Temporary test files
+test_check.txt
+traces.txt
+0/
+*.swp
+*.swo
+*~

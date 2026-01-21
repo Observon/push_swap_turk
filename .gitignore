@@ -5,25 +5,14 @@
 
 # Executables
 push_swap
-checker_linux
 pro_checker
-push_swap_test_linux.sh
 checker
 
 # Auxiliary test scripts (local only)
-run_ops.py
-run_tester.sh
-test_auto.sh
-test_with_checker.sh
-run_official_tester.sh
-test_push_swap.sh
-test_optimization.sh
-test_checker.sh
+
 
 # Documentation files (local development)
-TESTING_GUIDE.md
 ENCODING_FIX_EXPLANATION.md
-intrucoes.md
 DOCUMENTACAO_TECNICA.md
 
 # OS files
