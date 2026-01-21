@@ -21,6 +21,27 @@ tests/
 
 ## Quick Start
 
+```bash
+# View all test options
+cd tests/
+make help
+
+# Run quick tests (recommended during development)
+make run_all              # 26 cases in ~12 seconds
+
+# Run specific test suites
+make basic                # 10 basic tests
+make quick                # 8 quick validation tests
+make extended             # 8 extended tests
+
+# Run comprehensive validation
+make stress               # 500+ case stress test
+make run_all_comprehensive # Everything
+
+# Clean temporary files
+make clean
+```
+
 ### Using Makefile (Recommended)
 
 ```bash
