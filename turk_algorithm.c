@@ -27,7 +27,7 @@ static void push_to_b(t_stack **stack_a, t_stack **stack_b, int size)
     {
         if ((*stack_a)->index <= pushed + chunk_size)
         {
-            pb(stack_a, stack_b);
+            pb(stack_a, stack_b, 1);
             if ((*stack_b)->index < mid_point && stack_size(*stack_b) > 1)
                 rb(stack_b, 1);
             pushed++;

@@ -59,10 +59,10 @@ void	sort_small(t_stack **stack_a, t_stack **stack_b)
 	while (size > 3)
 	{
 		rotate_to_min(stack_a, size);
-		pb(stack_a, stack_b);
+		pb(stack_a, stack_b, 1);
 		size--;
 	}
 	sort_three(stack_a);
 	while (*stack_b)
-		pa(stack_a, stack_b);
+		pa(stack_a, stack_b, 1);
 }

@@ -48,8 +48,10 @@ void rrb(t_stack **stack_b, int print)
         write(1, "rrb\n", 4);
 }
 
-void rrr(t_stack **stack_a, t_stack **stack_b)
+void rrr(t_stack **stack_a, t_stack **stack_b, int print)
 {
     rra(stack_a, 0);
     rrb(stack_b, 0);
+    if (print)
+        write(1, "rrr\n", 4);
 }

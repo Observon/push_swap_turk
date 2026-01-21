@@ -26,23 +26,23 @@ static int	execute_instruction(char *line, t_stack **a, t_stack **b)
 	else if (ft_strncmp(line, "sb\n", 3) == 0)
 		sb(b, 0);
 	else if (ft_strncmp(line, "ss\n", 3) == 0)
-		ss(a, b);
+		ss(a, b, 0);
 	else if (ft_strncmp(line, "pa\n", 3) == 0)
-		pa(a, b);
+		pa(a, b, 0);
 	else if (ft_strncmp(line, "pb\n", 3) == 0)
-		pb(a, b);
+		pb(a, b, 0);
 	else if (ft_strncmp(line, "ra\n", 3) == 0)
 		ra(a, 0);
 	else if (ft_strncmp(line, "rb\n", 3) == 0)
 		rb(b, 0);
 	else if (ft_strncmp(line, "rr\n", 3) == 0)
-		rr(a, b);
+		rr(a, b, 0);
 	else if (ft_strncmp(line, "rra\n", 4) == 0)
 		rra(a, 0);
 	else if (ft_strncmp(line, "rrb\n", 4) == 0)
 		rrb(b, 0);
 	else if (ft_strncmp(line, "rrr\n", 4) == 0)
-		rrr(a, b);
+		rrr(a, b, 0);
 	else
 		return (0);
 	return (1);
@@ -58,6 +58,11 @@ static void	read_and_execute(t_stack **stack_a, t_stack **stack_b)
 		line = get_next_line(0);
 		if (!line)
 			break ;
+		if (line[0] == '\n' && line[1] == '\0')
+		{
+			free(line);
+			continue ;
+		}
 		ret = execute_instruction(line, stack_a, stack_b);
 		free(line);
 		if (!ret)

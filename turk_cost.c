@@ -68,13 +68,13 @@ static void do_double_rotations(t_stack **stack_a, t_stack **stack_b,
 {
     while (*cost_a > 0 && *cost_b > 0)
     {
-        rr(stack_a, stack_b);
+        rr(stack_a, stack_b, 1);
         (*cost_a)--;
         (*cost_b)--;
     }
     while (*cost_a < 0 && *cost_b < 0)
     {
-        rrr(stack_a, stack_b);
+        rrr(stack_a, stack_b, 1);
         (*cost_a)++;
         (*cost_b)++;
     }
@@ -113,5 +113,5 @@ void execute_cheapest_move(t_stack **stack_a, t_stack **stack_b)
     find_cheapest(*stack_b, &cost_a, &cost_b);
     do_double_rotations(stack_a, stack_b, &cost_a, &cost_b);
     do_single_rotations(stack_a, stack_b, cost_a, cost_b);
-    pa(stack_a, stack_b);
+    pa(stack_a, stack_b, 1);
 }
