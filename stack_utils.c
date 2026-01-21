@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   stack_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eride-ol <eride-ol@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,23 +12,54 @@
 
 #include "push_swap.h"
 
-void	error_exit(void)
+int	stack_size(t_stack *stack)
 {
-	write(2, "Error\n", 6);
-	exit(1);
+	int	size;
+	
+	size = 0;
+	while (stack)
+	{
+		size++;
+		stack = stack->next;
+	}
+	return (size);
 }
 
-void	free_stack(t_stack **stack)
+t_stack	*get_bottom(t_stack *stack)
 {
-	t_stack	*tmp;
+	while (stack && stack->next)
+		stack = stack->next;
+	return (stack);
+}
+
+void	stack_add_back(t_stack **stack, t_stack *new)
+{
+	t_stack	*tail;
 	
-	if (!stack || !*stack)
+	if (!new)
 		return ;
-	while (*stack)
+	if (!*stack)
 	{
-		tmp = (*stack)->next;
-		free(*stack);
-		*stack = tmp;
+		*stack = new;
+		return ;
 	}
-	*stack = NULL;
+	tail = get_bottom(*stack);
+	tail->next = new;
+}
+
+t_stack	*create_node(int value)
+{
+	t_stack	*new;
+	
+	new = malloc(sizeof(t_stack));
+	if (!new)
+		return (NULL);
+	new->value = value;
+	new->index = 0;
+	new->pos = 0;
+	new->target_pos = 0;
+	new->cost_a = 0;
+	new->cost_b = 0;
+	new->next = NULL;
+	return (new);
 }

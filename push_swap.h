@@ -30,12 +30,13 @@ typedef struct s_stack
 }   t_stack;
 
 // Parsing e validação
-int     is_valid_number(char *str);
-int     has_duplicates(t_stack *stack);
-int     is_sorted(t_stack *stack);
-t_stack *parse_arguments(int argc, char **argv);
-void    free_stack(t_stack **stack);
-void    error_exit(void);
+int		is_valid_number(char *str);
+int		has_duplicates(t_stack *stack);
+int		is_sorted(t_stack *stack);
+t_stack	*parse_arguments(int argc, char **argv);
+int		parse_int(const char *str, int *out);
+void	free_stack(t_stack **stack);
+void	error_exit(void);
 
 // Operações de pilha
 void    sa(t_stack **stack_a, int print);
@@ -51,13 +52,14 @@ void    rrb(t_stack **stack_b, int print);
 void    rrr(t_stack **stack_a, t_stack **stack_b);
 
 // Algoritmos de ordenação
-void    sort_three(t_stack **stack);
-void    sort_small(t_stack **stack_a, t_stack **stack_b);
-void    turk_algorithm(t_stack **stack_a, t_stack **stack_b);
-void    get_target_positions(t_stack **stack_a, t_stack **stack_b);
-void    calculate_costs(t_stack **stack_a, t_stack **stack_b);
-void    execute_cheapest_move(t_stack **stack_a, t_stack **stack_b);
-void    shift_stack(t_stack **stack_a);
+void	sort_three(t_stack **stack);
+void	sort_small(t_stack **stack_a, t_stack **stack_b);
+void	rotate_to_min(t_stack **stack_a, int size);
+void	turk_algorithm(t_stack **stack_a, t_stack **stack_b);
+void	get_target_positions(t_stack **stack_a, t_stack **stack_b);
+void	calculate_costs(t_stack **stack_a, t_stack **stack_b);
+void	execute_cheapest_move(t_stack **stack_a, t_stack **stack_b);
+void	shift_stack(t_stack **stack_a);
 
 // Utilitários
 int     stack_size(t_stack *stack);

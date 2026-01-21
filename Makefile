@@ -3,12 +3,16 @@ CHECKER = checker
 
 SRC = main.c \
 	  utils.c \
+	  stack_utils.c \
 	  validation.c \
 	  parse_args.c \
+	  parse_int.c \
 	  index.c \
 	  operations.c \
+	  rotate_operations.c \
 	  reverse_operations.c \
 	  sort_small.c \
+	  sort_utils.c \
 	  turk_algorithm.c \
 	  turk_cost.c \
 	  turk_target.c \
@@ -16,10 +20,13 @@ SRC = main.c \
 
 SRC_BONUS = checker.c \
 			utils.c \
+			stack_utils.c \
 			validation.c \
 			parse_args.c \
+			parse_int.c \
 			index.c \
 			operations.c \
+			rotate_operations.c \
 			reverse_operations.c
 
 OBJ := $(SRC:.c=.o)
