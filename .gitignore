@@ -5,11 +5,9 @@
 
 # Executables
 push_swap
-pro_checker
 checker
 
 # Auxiliary test scripts (local only)
-
 
 # Documentation files (local development)
 ENCODING_FIX_EXPLANATION.md
@@ -24,7 +22,6 @@ Thumbs.db
 
 # IDE
 .vscode/
-.idea/
 *.code-workspace
 
 # Test outputs
