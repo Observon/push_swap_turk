@@ -8,6 +8,8 @@ push_swap
 checker_linux
 pro_checker
 push_swap_test_linux.sh
+checker
+
 # Auxiliary test scripts (local only)
 run_ops.py
 run_tester.sh
