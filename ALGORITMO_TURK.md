@@ -2,8 +2,9 @@
 
 ## Visão Geral
 
-O **Algoritmo Turk** é uma estratégia de ordenação otimizada para o projeto Push Swap que utiliza **análise de custos** para determinar os movimentos mais eficientes. O algoritmo trabalha em três fases principais:
+O **Algoritmo Turk** é uma estratégia de ordenação otimizada para o projeto Push Swap que utiliza **análise de custos** para determinar os movimentos mais eficientes. O algoritmo trabalha em quatro fases principais:
 
+0. **Normalização**: Conversão de valores em índices relativos
 1. **Preparação**: Movimentação estratégica para stack B
 2. **Ordenação Incremental**: Retorno otimizado para stack A
 3. **Finalização**: Rotação final para posição correta
@@ -25,6 +26,142 @@ typedef struct s_stack
     int             cost_b;      // Custo de rotação na pilha B
     struct s_stack  *next;
 }   t_stack;
+```
+
+---
+
+## Fase 0: Normalização (Indexação)
+
+### Objetivo
+Converter valores arbitrários em **índices relativos** (0 a n-1), onde:
+- **0** = menor valor
+- **n-1** = maior valor
+
+Isso permite que todo o algoritmo trabalhe com comparações simples, independente dos valores originais.
+
+### Implementação (`assign_index`)
+
+```c
+void assign_index(t_stack *stack)
+{
+    t_stack *current;
+    t_stack *runner;
+    int index;
+
+    current = stack;
+    while (current)
+    {
+        index = 0;
+        runner = stack;
+        // Conta quantos elementos são menores que current
+        while (runner)
+        {
+            if (runner->value < current->value)
+                index++;
+            runner = runner->next;
+        }
+        current->index = index;
+        current = current->next;
+    }
+}
+```
+
+### Lógica
+
+Para cada elemento, **conta quantos valores são menores** que ele:
+- Se nenhum elemento é menor → `index = 0` (é o menor)
+- Se 1 elemento é menor → `index = 1` (segundo menor)
+- Se 2 elementos são menores → `index = 2` (terceiro menor)
+- E assim sucessivamente...
+
+### Exemplo Prático
+
+#### Entrada
+```
+Valores: [42, -5, 100, 7, 0]
+```
+
+#### Processo de Indexação
+
+**Para value = 42:**
+- `-5 < 42` ✅ (count++)
+- `100 < 42` ❌
+- `7 < 42` ✅ (count++)
+- `0 < 42` ✅ (count++)
+- **index = 3** (3 valores menores)
+
+**Para value = -5:**
+- `42 < -5` ❌
+- `100 < -5` ❌
+- `7 < -5` ❌
+- `0 < -5` ❌
+- **index = 0** (nenhum valor menor)
+
+**Para value = 100:**
+- `42 < 100` ✅
+- `-5 < 100` ✅
+- `7 < 100` ✅
+- `0 < 100` ✅
+- **index = 4** (4 valores menores)
+
+**Para value = 7:**
+- `42 < 7` ❌
+- `-5 < 7` ✅
+- `100 < 7` ❌
+- `0 < 7` ✅
+- **index = 2** (2 valores menores)
+
+**Para value = 0:**
+- `42 < 0` ❌
+- `-5 < 0` ✅
+- `100 < 0` ❌
+- `7 < 0` ❌
+- **index = 1** (1 valor menor)
+
+#### Resultado
+```
+Stack antes:  [42,  -5,  100,  7,   0]
+      valor:   ↓    ↓    ↓    ↓    ↓
+Stack depois: [42₃, -5₀, 100₄, 7₂,  0₁]
+      índice:   3    0    4    2    1
+```
+
+### Por que é essencial?
+
+1. **Simplifica comparações**: 
+   - Sem indexação: `if (value_a > value_b)` → trabalha com qualquer inteiro
+   - Com indexação: `if (index <= chunk_size)` → trabalha apenas com 0 a n-1
+
+2. **Facilita cálculos**:
+   - Determinar "menor/maior" → comparar índices
+   - Calcular chunks → divisão simples de intervalos
+   - Encontrar posição alvo → busca por índice próximo
+
+3. **Independência de valores**:
+   - Funciona com negativos, positivos, INT_MIN, INT_MAX
+   - Exemplo: `[-2147483648, 0, 2147483647]` → `[0, 1, 2]`
+
+4. **Otimização**:
+   - Uma única passagem O(n²) no início
+   - Todas as operações subsequentes usam índices (mais rápido)
+
+### Complexidade
+- **Temporal**: O(n²) 
+  - Para cada elemento (n): compara com todos (n)
+- **Espacial**: O(1)
+  - Apenas campo `index` na estrutura existente
+
+### Quando é chamada?
+
+Logo após parsing e validação, **antes** de qualquer operação de ordenação:
+
+```c
+int main(int argc, char **argv)
+{
+    stack_a = parse_arguments(argc, argv);  // Cria stack com values
+    assign_index(stack_a);                  // ← NORMALIZAÇÃO
+    sort_stack(&stack_a, &stack_b, size);   // Usa índices
+}
 ```
 
 ---
@@ -554,6 +691,12 @@ Se menor elemento não estiver no topo:
 
 ### Otimizações Implementadas
 
+0. **Normalização (Indexação)**
+   - Conversão O(n²) executada uma única vez
+   - Todas operações subsequentes usam índices (0 a n-1)
+   - Elimina comparações complexas de valores arbitrários
+   - **Impacto**: Fundação do algoritmo, permite todas outras otimizações
+
 1. **Push em Chunks Progressivos**
    - Divide elementos em grupos (5 ou 11 chunks)
    - Push progressivo: `index <= pushed + chunk_size`
@@ -566,21 +709,21 @@ Se menor elemento não estiver no topo:
    - Facilita retorno ordenado para A
    - **Impacto**: Reduz custos de rotação em ~5%
 
-3. **Cálculo de Custo Real**
+4. **Cálculo de Custo Real**
    - Considera que `rr`/`rrr` executam simultaneamente
    - Custo = `max(|cost_a|, |cost_b|)` para mesmo sinal
    - Prioriza movimentos que maximizam uso de rotações duplas
    - **Impacto**: Maior ganho, ~10-15% de redução
 
-4. **Rotações Duplas** (`rr`/`rrr`)
+5. **Rotações Duplas** (`rr`/`rrr`)
    - Reduz operações em até 50%
    - Executadas quando ambos custos têm mesmo sinal
 
-5. **Escolha de Direção**
+6. **Escolha de Direção**
    - Compara `pos` com `size/2`
    - Sempre escolhe o caminho mais curto
 
-6. **Indexação Prévia**
+7. **Indexação Prévia**
    - Operações trabalham com índices relativos
    - Evita comparações de valores durante ordenação
 
@@ -627,6 +770,7 @@ int stack_size(t_stack *stack)
 ## Conclusão
 
 O Algoritmo Turk combina:
+- **Normalização** (assign_index)
 - **Estratégia de divisão** (push to B)
 - **Ordenação simples** (sort_three)
 - **Análise de custos** (calculate_costs)
