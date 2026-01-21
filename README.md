@@ -1,4 +1,4 @@
-_*This project has been created as part of 42 curriculum by erick.*_
+*This project has been created as part of the 42 curriculum by eride-ol.*
 
 # Push Swap
 
@@ -6,145 +6,263 @@ _*This project has been created as part of 42 curriculum by erick.*_
 
 Push Swap is a sorting algorithm project that implements an efficient solution for sorting integers using two stacks (a and b) with a limited set of operations. The goal is to sort the numbers in stack a in ascending order using the minimum number of operations possible.
 
+The program validates inputs (integers only, no duplicates, within `int` limits) and outputs a minimal sequence of stack operations to achieve the sort.
+
 The project demonstrates understanding of:
-- Stack data structures and operations
+- Stack data structures and linked list operations
 - Algorithm optimization and complexity analysis
 - Memory management and error handling
 - Modular programming and code organization
 
-## Instructions
+## Compilation
 
-### Compilation
 ```bash
-make                # Compile the project
-make clean          # Remove object files
-make fclean         # Remove object files and executable
-make re             # Clean and recompile
-make debug          # Compile with address sanitizer for debugging
+make            # Compile push_swap executable
+make clean      # Remove object files
+make fclean     # Remove object files and executable
+make re         # Clean and recompile
+make bonus      # Compile checker bonus executable
 ```
 
-### Usage
+**Note:** Uses `cc` compiler with flags `-Wall -Wextra -Werror`. Automatically compiles `libft/libft.a` as dependency.
+
+## Usage
+
 ```bash
 ./push_swap [list of integers]
 ```
 
 **Examples:**
 ```bash
-# Sort 4 numbers
+# Sort 5 numbers
 ./push_swap 4 67 3 87 23
-# Output: 9 operations
+
+# Validate output with checker
+./push_swap 2 1 3 | ./checker 2 1 3
+# Output: OK
+
+# Already sorted (no output)
+./push_swap 1 2 3
+# Output: (no output, exit 0)
 
 # Error cases
-./push_swap 0 one 2 3
-# Output: Error
-
-./push_swap ""
-# Output: Error
+./push_swap 0 one 2 3       # Error: non-numeric
+./push_swap 1 2 2 3         # Error: duplicate
+./push_swap 9999999999      # Error: overflow
+./push_swap ""              # Error: empty string
 ```
 
-### Operations Available
-- **sa**: Swap first 2 elements at top of stack a
-- **sb**: Swap first 2 elements at top of stack b  
-- **ss**: sa and sb at same time
-- **pa**: Push first element from b to top of a
-- **pb**: Push first element from a to top of b
-- **ra**: Rotate stack a (first element becomes last)
-- **rb**: Rotate stack b (first element becomes last)
-- **rr**: ra and rb at same time
-- **rra**: Reverse rotate stack a (last element becomes first)
-- **rrb**: Reverse rotate stack b (last element becomes first)
-- **rrr**: rra and rrb at same time
+**Behavior:**
+- No arguments: no output, exit 0
+- Already sorted: no output, exit 0
+- On error: print "Error\n" to stderr, exit 1
+
+## Operations
+
+The program uses these 12 stack operations:
+
+| Operation | Description |
+|-----------|-------------|
+| `sa` | Swap first 2 elements of stack a |
+| `sb` | Swap first 2 elements of stack b |
+| `ss` | Perform `sa` and `sb` simultaneously |
+| `pa` | Push top of stack b to stack a |
+| `pb` | Push top of stack a to stack b |
+| `ra` | Rotate stack a (first becomes last) |
+| `rb` | Rotate stack b (first becomes last) |
+| `rr` | Perform `ra` and `rb` simultaneously |
+| `rra` | Reverse rotate stack a (last becomes first) |
+| `rrb` | Reverse rotate stack b (last becomes first) |
+| `rrr` | Perform `rra` and `rrb` simultaneously |
 
 ## Technical Implementation
 
-### 1. Data Structures
+### Data Structures
 
-#### Stack Node Structure
+#### Stack Node
 ```c
 typedef struct s_stack
 {
-    int value;          // The actual integer value
-    int index;          // Normalized position (0 = smallest)
-    struct s_stack *next;
+    int             value;       // Original integer value
+    int             index;       // Normalized position (0 = smallest)
+    int             pos;         // Current position in stack
+    int             target_pos;  // Target position after sorting
+    int             cost_a;      // Rotation cost in stack a
+    int             cost_b;      // Rotation cost in stack b
+    struct s_stack  *next;       // Linked list pointer
 } t_stack;
 ```
 
-#### Why Two Fields?
-- **value**: Original integer for final output
-- **index**: Normalized position for efficient comparison
-- **Normalization**: Converts arbitrary values to 0,1,2,... for algorithm efficiency
-*This project has been created as part of the 42 curriculum by eride-ol.*
+**Field Details:**
+- **value**: The actual input integer (for validation)
+- **index**: Normalized rank from 0 to n-1 (enables efficient comparison regardless of input values)
+- **pos/target_pos**: Current and destination positions (updated during algorithm execution)
+- **cost_a/cost_b**: Pre-calculated rotation costs (used to find cheapest moves)
 
-# Push Swap
+### Algorithm: Turk Algorithm with Progressive Chunks
 
-## Description
-Sorting integers using two stacks (`a` and `b`) with a limited set of stack operations. The program outputs a minimal sequence that sorts stack `a` in ascending order, validating inputs (integers only, no duplicates, within `int` limits).
+The sorting process occurs in four phases:
 
-## What to Submit
-- `Makefile` (`all`, `clean`, `fclean`, `re`; no relink)
-- Project `*.c` / `*.h`
-- `libft/` sources and its `Makefile`
-- **Do not submit** auxiliary testers/scripts (Push-Swap-Tester binaries, run_ops.py, run_tester wrappers, etc.).
+#### Phase 1: Push Phase (Chunking)
+- Divide dataset into progressive chunks
+  - ≤100 elements: 5 chunks of ~20 each
+  - >100 elements: 11 chunks of ~10 each
+- Move elements from a to b where `index <= pushed + chunk_size`
+- **Pre-rotation in B**: Elements below median are rotated to bottom using `rb`, keeping larger indices at top
+  - Reduces rotation costs in reinsertion phase by ~5%
+  - Better element distribution across stack
 
-## Instructions
-### Build & Run
+#### Phase 2: Sort Remaining 3
+- Special `sort_three()` function optimally sorts remaining 3 elements in stack a with 2-3 operations
+
+#### Phase 3: Reinsertion Loop
+While stack b is not empty:
+1. Recompute positions for all elements
+2. Calculate target position: where will top of b land in sorted a?
+3. Compute rotation costs:
+   - Same direction: `max(|cost_a|, |cost_b|)` (uses `rr`/`rrr` for simultaneous execution)
+   - Opposite directions: `|cost_a| + |cost_b|` (separate rotations needed)
+4. Execute cheapest move and push to a
+
+#### Phase 4: Final Alignment
+- Rotate stack a to place the minimum element on top (if not already there)
+
+### Performance Results
+
+Tested with 10 random seeds each:
+
+| Size | Min | Max | Average | Limit | Status |
+|------|-----|-----|---------|-------|--------|
+| 100 | 560 | 650 | **597** | <700 | ✅ 14.7% margin |
+| 500 | 4295 | 4848 | **4469** | ≤5500 | ✅ 18.7% below |
+
+**Optimizations Implemented:**
+1. **Progressive chunks**: Better element distribution reduces rotation requirements
+2. **Pre-rotation in B**: ~5% cost reduction through better positioning
+3. **Real cost calculation**: Accounts for simultaneous operations (`rr`/`rrr`), ~10-15% improvement
+4. **Combined effect**: ~19% overall improvement vs. naive implementation
+
+### Code Organization
+
+**Sorting Algorithm:**
+- [turk_algorithm.c](turk_algorithm.c) - Main orchestration and phase control
+- [turk_target.c](turk_target.c) - Target position calculation
+- [turk_cost.c](turk_cost.c) - Cost analysis and cheapest move execution
+- [turk_shift.c](turk_shift.c) - Final stack alignment
+
+**Sorting Operations:**
+- [sort_small.c](sort_small.c) - Optimized sorting for 2-5 elements
+- [operations.c](operations.c) - Push and swap operations (sa, sb, ss, pa, pb)
+- [rotate_operations.c](rotate_operations.c) - Rotation operations (ra, rb, rr)
+- [reverse_operations.c](reverse_operations.c) - Reverse rotation operations (rra, rrb, rrr)
+
+**Supporting Infrastructure:**
+- [validation.c](validation.c) - Input validation and error handling
+- [parse_args.c](parse_args.c) - Argument parsing with overflow detection
+- [parse_int.c](parse_int.c) - Integer parsing utilities
+- [stack_utils.c](stack_utils.c) - Stack creation, navigation, and manipulation
+- [index.c](index.c) - Index/rank calculation and normalization
+- [utils.c](utils.c) - Memory management and utility functions
+
+**Main Program:**
+- [main.c](main.c) - Entry point and orchestration
+- [push_swap.h](push_swap.h) - Header with all function declarations
+
+## Bonus: Checker
+
+The checker program validates push_swap output:
+
 ```bash
-make            # build push_swap
-make clean      # remove objects
-make fclean     # remove objects and binary
-make re         # rebuild
-./push_swap 2 1 3 6 5 8
-```
-- No args: no output, exit 0
-- On error: print "Error" to stderr (bad number, overflow, duplicates, empty arg)
-
-## Operations
-`sa sb ss pa pb ra rb rr rra rrb rrr`
-- swap top 2, push between stacks, rotate (top to bottom), reverse rotate (bottom to top); combined ops act on both stacks.
-
-## Algorithm (current implementation)
-- Each node: `value`, `index`, `pos`, `target_pos`, `cost_a`, `cost_b`.
-- Push phase: move from `a` to `b` using **progressive chunks** (5 chunks for ≤100 elements, 11 for >100).
-  - Pushes elements where `index <= pushed + chunk_size`
-  - **Pre-rotation in B**: elements < median rotated to bottom (`rb`), keeping larger indices at top
-  - Better distribution, reduces future rotation costs
-- Sort 3: `sort_three` on the remaining 3 in `a`.
-- Reinsertion loop (while `b` not empty):
-  1) recompute positions;
-  2) `get_target_positions` chooses where each `b` node lands in `a`;
-  3) `calculate_costs` finds minimal rotations for `a`/`b` using **real cost calculation**:
-     - Same sign costs: `max(|cost_a|, |cost_b|)` (considers `rr`/`rrr` simultaneous execution)
-     - Opposite signs: `|cost_a| + |cost_b|` (separate rotations)
-  4) `execute_cheapest_move` rotates (favoring shared direction) and `pa`.
-- Final align: `shift_stack` rotates `a` to put the smallest on top if needed.
-
-## Performance (10 seeds via test_optimization.sh)
-- **100 numbers**: min/max/avg = 560 / 650 / **597** (limit <700 ✅ - 14.7% margin)
-- **500 numbers**: min/max/avg = 4295 / 4848 / **4469** (limit ≤5500 ✅ - 18.7% below target)
-
-### Optimizations Implemented
-1. **Progressive chunks**: 5 chunks (≤100), 11 chunks (>100) for better distribution
-2. **Pre-rotation in B**: keeps larger indices at top, reduces rotation costs by ~5%
-3. **Real cost calculation**: considers `rr`/`rrr` simultaneous execution, major ~10-15% reduction
-4. **Result**: ~19% total reduction vs initial implementation (was ~617/5505 avg)
-
-### Usage Examples
-```bash
-./push_swap 3 2 1
-ARG="4 67 3 87 23"; ./push_swap $ARG | wc -l
-ARG="4 67 3 87 23"; ./push_swap $ARG | ./Push-Swap-Tester/checker_linux $ARG
+./push_swap [numbers] | ./checker [numbers]
 ```
 
-### Testing Aids (local, não subir)
-- Estatísticas rápidas: `python3 run_ops.py` (20 seeds de 100/500 elementos).
-- Wrapper oficial: `bash run_official_tester.sh` (conveniência para Push-Swap-Tester).
+**Output:**
+- `OK` - Stack a is properly sorted
+- `KO` - Stack a is not sorted or operation sequence is invalid
+- `Error` - Invalid input
+
+Compiled as `checker` target via `make bonus`
 
 ## Error Handling
-- Rejeita entradas não numéricas, vazias, duplicadas ou fora de `int` com `Error\n` em stderr.
-- Se já estiver ordenado ou tiver 0/1 elemento, não imprime nada.
+
+The program validates all inputs and rejects with "Error\n" on stderr for:
+- Non-numeric arguments
+- Values outside the int range (overflow)
+- Duplicate values
+- Empty string arguments
+
+If the input is already sorted or contains 0-1 elements, no operations are output (exit 0).
+
+## Directory Structure
+
+```
+push_swap/
+├── Makefile              # Build configuration
+├── push_swap.h           # Header file with function declarations
+├── main.c               # Entry point
+├── validation.c         # Input validation
+├── parse_args.c         # Argument parsing
+├── parse_int.c          # Integer parsing
+├── stack_utils.c        # Stack operations
+├── index.c              # Index calculation
+├── utils.c              # Utilities
+├── operations.c         # Push/swap operations
+├── rotate_operations.c  # Rotation operations
+├── reverse_operations.c # Reverse rotation operations
+├── sort_small.c         # Small sort optimization
+├── sort_utils.c         # Sorting utilities
+├── turk_algorithm.c     # Main algorithm
+├── turk_target.c        # Target position calculation
+├── turk_cost.c          # Cost analysis
+├── turk_shift.c         # Final alignment
+├── checker_bonus.c      # Checker bonus program
+├── libft/               # Custom C library
+│   ├── Makefile
+│   ├── libft.h
+│   └── *.c              # Standard library functions
+└── tests/               # Testing utilities (local development only)
+    ├── README.md
+    ├── Makefile
+    └── *.sh             # Test scripts
+```
+
+## Testing
+
+A comprehensive test suite is available in the `tests/` folder for local development:
+
+```bash
+cd tests
+make help           # List available tests
+make run_basic      # Basic functionality (10 cases)
+make run_checker    # Checker validation (8 cases)
+make run_extended   # Extended integration (8 cases)
+make run_all        # All tests (26 cases)
+make run_stress     # Stress test (500+ cases with memory check)
+```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
 
 ## Resources
-- 42 push_swap subject (PDF)
-- Referências de operações de pilha e algoritmos de ordenação
-- AI usage: apoio em documentação, pequenos ajustes de código e scripts de validação/benchmarks; algoritmos centrais, parsing e operações implementados manualmente.
-    else if ((*stack)->next->index == max)
+
+### Classic References
+- **42 School Push Swap Subject** - Official project specification and requirements
+- **Introduction to Algorithms** (Cormen, Leiserson, Rivest, Stein) - Sorting algorithms and complexity analysis
+- **The C Programming Language** (Kernighan & Ritchie) - Standard C library and best practices
+- **Data Structures and Algorithm Analysis in C** (Weiss) - Stack operations and algorithm 
+- **Push_swap_tutorial** (https://medium.com/nerd-for-tech/push-swap-tutorial-fa746e6aba1e)
+
+### Algorithm References
+- **Sorting and Searching** - Knuth's foundational work on sorting techniques
+- **Linked Lists** - MIT OpenCourseWare materials on linked data structures
+- **Stack-based Algorithms** - Understanding stack operations and their applications
+
+### AI Usage
+
+AI was used for the create tasks:
+
+## Notes
+
+- Tests are not part of the official submission; they exist in `tests/` for local development
+- Project follows 42 school curriculum standards
+- All source code must be submitted with Makefile and libft
+- The checker bonus is optional but recommended for testing
