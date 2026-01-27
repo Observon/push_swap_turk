@@ -14,7 +14,7 @@
 
 static void	checker_error(t_stack **stack_a, t_stack **stack_b)
 {
-	get_next_line(-1);
+	get_next_line(10);
 	free_stack(stack_a);
 	free_stack(stack_b);
 	error_exit();
@@ -83,7 +83,7 @@ int	main(int argc, char **argv)
 		return (0);
 	stack_b = NULL;
 	read_and_execute(&stack_a, &stack_b);
-	get_next_line(-1);
+	get_next_line(10);
 	if (is_sorted(stack_a) && !stack_b)
 		write(1, "OK\n", 3);
 	else
