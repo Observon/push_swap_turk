@@ -6,7 +6,7 @@
 /*   By: eride-ol <eride-ol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 10:05:45 by eride-ol          #+#    #+#             */
-/*   Updated: 2026/01/20 20:33:45 by eride-ol         ###   ########.fr       */
+/*   Updated: 2026/01/27 00:09:16 by eride-ol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,16 @@ char	*read_until_newline(int fd, char *result)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash = NULL;
 	char		*line_result;
+	static char	*stash = NULL;
 
+	if (fd == -1)
+	{
+		if (stash)
+			free(stash);
+		stash = NULL;
+		return (NULL);
+	}
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (BUFFER_SIZE > 2147483647)
