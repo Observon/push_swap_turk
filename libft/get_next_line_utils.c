@@ -6,7 +6,7 @@
 /*   By: eride-ol <eride-ol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 10:05:51 by eride-ol          #+#    #+#             */
-/*   Updated: 2025/12/18 14:24:21 by eride-ol         ###   ########.fr       */
+/*   Updated: 2026/01/27 11:28:35 by eride-ol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,25 +49,19 @@ char	*ft_strchr(const char *string, int seachchar)
 		return (NULL);
 }
 
-void	ft_bzero(void *s, size_t n)
-{
-	char	*str;
-	size_t	i;
-
-	str = (char *)s;
-	i = 0;
-	while (i < n)
-		str[i++] = '\0';
-}
-
 void	*ft_calloc(size_t count, size_t size)
 {
 	char	*result;
+	size_t	i;
+	size_t	total;
 
 	result = malloc(size * count);
 	if (!result)
 		return (NULL);
-	ft_bzero(result, size * count);
+	total = size * count;
+	i = 0;
+	while (i < total)
+		result[i++] = '\0';
 	return (result);
 }
 

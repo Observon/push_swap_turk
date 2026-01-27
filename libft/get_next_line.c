@@ -6,20 +6,11 @@
 /*   By: eride-ol <eride-ol@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 10:05:45 by eride-ol          #+#    #+#             */
-/*   Updated: 2026/01/27 00:09:16 by eride-ol         ###   ########.fr       */
+/*   Updated: 2026/01/27 11:28:39 by eride-ol         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-char	*join_and_free(char *result, char *appender)
-{
-	char	*temp;
-
-	temp = ft_strjoin(result, appender);
-	free(result);
-	return (temp);
-}
 
 char	*find_remaining(char *result)
 {
@@ -69,6 +60,7 @@ char	*find_line(char *result)
 char	*read_until_newline(int fd, char *result)
 {
 	char	*read_buffer;
+	char	*temp;
 	int		bytes_read;
 
 	if (!result)
@@ -81,10 +73,13 @@ char	*read_until_newline(int fd, char *result)
 		if (bytes_read == -1)
 		{
 			free(read_buffer);
+			free(result);
 			return (NULL);
 		}
 		read_buffer[bytes_read] = 0;
-		result = join_and_free(result, read_buffer);
+		temp = ft_strjoin(result, read_buffer);
+		free(result);
+		result = temp;
 		if (ft_strchr(result, '\n'))
 			break ;
 	}
@@ -97,21 +92,25 @@ char	*get_next_line(int fd)
 	char		*line_result;
 	static char	*stash = NULL;
 
-	if (fd == -1)
+	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > 2147483647)
 	{
 		if (stash)
+		{
 			free(stash);
-		stash = NULL;
+			stash = NULL;
+		}
 		return (NULL);
 	}
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	if (BUFFER_SIZE > 2147483647)
-		return (NULL);
 	stash = read_until_newline(fd, stash);
 	if (!stash)
 		return (NULL);
 	line_result = find_line(stash);
+	if (!line_result)
+	{
+		free(stash);
+		stash = NULL;
+		return (NULL);
+	}
 	stash = find_remaining(stash);
 	return (line_result);
 }
