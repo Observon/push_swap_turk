@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Script para testar push_swap com o checker
+# Valida PERFORMANCE: 3, 5, 10, 20, 50, 100 números contra limites rigorosos
 
 PUSH_SWAP="../push_swap"
 CHECKER="../checker"
@@ -24,11 +25,11 @@ if [ ! -f "$CHECKER" ]; then
 fi
 
 echo "=========================================="
-echo "  TESTE COM CHECKER"
+echo "  TESTE PERFORMANCE - LIMITES RIGOROSOS"
 echo "=========================================="
 echo ""
 
-# Função para testar
+# Função para testar com checker
 test_checker() {
     local desc=$1
     local nums=$2
@@ -52,9 +53,9 @@ test_checker() {
     
     if [[ $result == "OK" ]]; then
         if [ -z "$expected_max_ops" ] || [ $ops -le $expected_max_ops ]; then
-            echo -e "${GREEN}✓ PASS${NC} - $ops operações"
+            echo -e "${GREEN}✓ PASS${NC} - $ops operações (limite: $expected_max_ops)"
         else
-            echo -e "${YELLOW}⚠ WARNING${NC} - $ops operações (limite: $expected_max_ops)"
+            echo -e "${RED}✗ FAIL${NC} - $ops operações (limite: $expected_max_ops)"
         fi
     else
         echo -e "${RED}✗ FAIL${NC} - Checker: $result"
@@ -108,8 +109,8 @@ random.seed(4)
 nums = random.sample(range(-50000, 50001), 100)
 print(' '.join(map(str, nums)))
 ")
-test_checker "Teste 8: 100 números aleatórios" "$nums" "1200"
+test_checker "Teste 8: 100 números aleatórios (limite: 1200)" "$nums" "1200"
 
 echo "=========================================="
-echo "Testes Concluídos!"
+echo "Testes de Performance Concluídos!"
 echo "=========================================="
