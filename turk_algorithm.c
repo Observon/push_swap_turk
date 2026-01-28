@@ -18,9 +18,11 @@ static void push_to_b(t_stack **stack_a, t_stack **stack_b, int size)
     int chunk_size;
     
     if (size <= 100)
-        chunk_size = 15;
+        chunk_size = 20;
+    else if (size <= 500)
+        chunk_size = 45;
     else
-        chunk_size = 30;
+        chunk_size = size / 11;
     while (size > 3 && pushed < size - 3)
     {
         if ((*stack_a)->index <= pushed)
