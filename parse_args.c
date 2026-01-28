@@ -62,16 +62,12 @@ static void	process_arg(char *arg, t_stack **stack_a)
 	char	**nums;
 
 	if (!arg || !*arg)
-	{
-		free_stack(stack_a);
-		error_exit();
-	}
+		return ;
 	nums = ft_split(arg, ' ');
 	if (!nums || !nums[0])
 	{
 		free_split(nums);
-		free_stack(stack_a);
-		error_exit();
+		return ;
 	}
 	process_split(nums, stack_a);
 	free_split(nums);

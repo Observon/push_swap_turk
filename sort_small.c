@@ -12,30 +12,32 @@
 
 #include "push_swap.h"
 
-int get_min_index(t_stack *stack)
+int	get_min_index(t_stack *stack)
 {
-    int min = stack->index;
-    
-    while (stack)
-    {
-        if (stack->index < min)
-            min = stack->index;
-        stack = stack->next;
-    }
-    return min;
+	int	min;
+
+	min = stack->index;
+	while (stack)
+	{
+		if (stack->index < min)
+			min = stack->index;
+		stack = stack->next;
+	}
+	return (min);
 }
 
-int get_max_index(t_stack *stack)
+int	get_max_index(t_stack *stack)
 {
-    int max = stack->index;
-    
-    while (stack)
-    {
-        if (stack->index > max)
-            max = stack->index;
-        stack = stack->next;
-    }
-    return max;
+	int	max;
+
+	max = stack->index;
+	while (stack)
+	{
+		if (stack->index > max)
+			max = stack->index;
+		stack = stack->next;
+	}
+	return (max);
 }
 
 void	sort_three(t_stack **stack)

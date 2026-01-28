@@ -14,9 +14,10 @@
 
 static void push_to_b(t_stack **stack_a, t_stack **stack_b, int size)
 {
-    int pushed = 0;
+    int pushed;
     int chunk_size;
     
+    pushed = 0;
     if (size <= 100)
         chunk_size = 20;
     else if (size <= 500)
@@ -44,8 +45,9 @@ static void push_to_b(t_stack **stack_a, t_stack **stack_b, int size)
 
 void turk_algorithm(t_stack **stack_a, t_stack **stack_b)
 {
-    int size = stack_size(*stack_a);
+    int size;
     
+    size = stack_size(*stack_a);
     push_to_b(stack_a, stack_b, size);
     sort_three(stack_a);
     while (*stack_b)
